@@ -29,5 +29,5 @@ CHAPTER 13 트랜지션 효과 - (3/23)
 ```
 
 ## webpack_sample 
-window10
+window10, 
 node version 10.15.1
