@@ -27,3 +27,7 @@ CHAPTER 12 vue-router를 이용한 라우팅 - (3/23)
 CHAPTER 13 트랜지션 효과 - (3/23)
 
 ```
+
+## webpack_sample 
+
+node version 10.15.1
