@@ -1,0 +1,17 @@
+@import "node_modules/normalize.css/normalize";
+
+.layout {
+  background: #ccc;
+  border: 1px solid red;
+  box-sizing: border-box;
+
+  &__box {
+    background: #fff;
+    border: 1px solid blue;
+    color: #555;
+
+    ::placeholder {
+      color: pink;
+    }
+  }
+}
