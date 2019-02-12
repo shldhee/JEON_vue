@@ -9,6 +9,7 @@ const config = {
         //inline: true,
         //hot:true,
         port: 1103,
+        open: true,
         contentBase: path.resolve(__dirname, '../')
     },
     entry : {
