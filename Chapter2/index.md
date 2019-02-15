@@ -1,4 +1,5 @@
-#Vue.js 기초 
+#Vue.js 기초
+
 Vue.js는 전형적인 MVVM  패턴을 따르고 있습니다.  MVVM 패턴은 Model - View - ViewModel의 줄임말입니다. MVVM패턴은  애플리케이션 로직과  UI의 분리를 위해 설계된 패턴입니다. View는 HTML과 css로 작성하게 됩니다. ViewModel은 View의 실제 논리 및 데이터 흐름을 담당합니다. View는 ViewModel만 알고있으면 되라 뿐, 그 외의 요소는 신경 쓰지 않아도 됩니다. 비지니스 로직에서는 ViewModel의 상태 데이터만 변경하면 즉시 View에 반영됩니다. 
  뷰의 대표적 문법은 콧수염 모양을 닮았다고해서 콧수염 표현식(Mustache Expression)이라고도 부르며, 문자열의 덧붙인다는 의미로 보간법(InterPolation)이라고도 합니다.
  
