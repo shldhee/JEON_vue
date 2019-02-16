@@ -2,6 +2,14 @@
 
 ## 3.1 el, data, computed 옵션
 
+- data : data 옵션에 주어진 모든 속성들은 Vue 인스턴스 내부에서 직접 이용되지 않고 Vue 인스턴스와 Data 옵션에 주어진 객체 사이에 프록시를 두어 처리.
+
+> Vue.js 2.x 버전에서는 프록시 구현을 위해 속성을 사용합니다.
+> Object.defineProperty() 메서드를 이용해 setter, getter를 정의하고 setter를 이용해 값이 변경될 때, 관찰자
+(watcher)에게 변경 여부를 알려서 렌더링이 다시 일어나도록 제어합니다.
+> 자세한 내용은 다음 웹문서를 참조합니다.
+> https://kr.vuejs.org/v2/guide/reactivity.html
+
 ```angular2html
 // 예제 03-01
    <div id="test">
@@ -16,7 +24,24 @@
        data: model
    })
 </script>
+
+// 콘솔 실행시 위 소스와 동일하게 작동됨을 알 수 있음
+> vm.name = "이몽룡"
+> model.name = "향단이"
+> vm.$data.name = "성춘향"
 ```
+
+_내장옵션들은 $식별자를 앞에 붙이고 있는데 이름 충돌을 피하기 위한 것이다._
+
+- el : Vue 인스턴스에 연결할 HTML DOM 요소를 지정하는 옵션.
+
+__주의할 점은 여러 개 요소에 지정할 수 없다는 것이다.__
+
+실행 도중 동적으로 Vue 인스턴스와 HTML 요소를 연결할 수 있지만, 가능하다면 el 옵션은 Vue 인스턴스를 생성할 때 미리 지정할 것을 권장. ( vm.$mount('#test')와 같이 $mount()를 이용해 동적으로 연결할 수 있음 )
+
+Vue 인스턴스가 HTML 요소와 연결되면 도중에 연결된 요소를 변경할 수 없다.
+
+computed 옵션에 지정한 값은 함수였지만 Vue 인스턴스는 프록시 처리하여 마치 속성처럼 취급한다.
 
 ```angular2html
 // 예제 03-02 : 예제 02-13 소환
@@ -34,6 +59,11 @@ var vmSum = new Vue({
     }
 })
 </script>
+
+// 계산형 속성으로 접근시 정상 실행됨을 알 수 있다.
+> vmSum.sum // 계산형 속성
+> vmSum.$data.sum
+> vmSum.$options.computed.sum // $options : Vue 인스턴스의 모든 옵션 정보를 다룸
 ```
 
 ```angular2html
@@ -55,6 +85,7 @@ var vm = new Nue({
     data: {amt : 1234567},
     computed: {
         amount: {
+            // amt 값을 숫자 3자리마다 쉼표 처리하여 리턴
             get: function() {
                 var s = new String(""+this.amt);
                 var result = "";
@@ -67,6 +98,7 @@ var vm = new Nue({
                 }
                 return result;
             },
+            // 문자열을 쉼표 제거한 뒤 숫자 값으로 변환
             set: function(amt) {
                 if (typeof(amt) === "string") {
                     var result = parseInt(amt.replace(/,/g, ""))
@@ -85,9 +117,15 @@ var vm = new Nue({
 </script>
 </body>
 </html>
+
+> vm.amount = "1,000,000,000"
+> vm.amt
+> vm.amount
 ```
 
 ## 3.2 메서드
+
+- methods : Vue 인스턴스에서 사용할 메서드를 등록하는 옵션. 직접 호출, 디렉티브 표현식, 콧수염(Mustache) 표현식 등에서 사용할 수 있다.
 
 ```angular2html
 // 예제 03-04 : 예제 03-02를 메서드 사용으로 변경
@@ -102,6 +140,7 @@ var vmSum = new Vue({
     data: {num: 0},
     methods: {
         sum: function() { // note: 내부에 this를 사용하는 함수는 es6 arrow function을 사용하지 않도록 주의해야한다.
+            // console.log (Date.now());
             var n = Number(this.num);
             if (Number.isNaN(n) || n < 1) return 0;
             return ((1+n) * n) / 2;
@@ -111,7 +150,17 @@ var vmSum = new Vue({
 </script>
 ```
 
+{{sum()}} 으로 호출 구문 형식을 사용해야 하는데, 이 형식과 계산형 속성의 차이는 내부 작동 방식이다.
+
+계산형 속성은 종속된 값에 의해 결과값이 캐싱이 되고, 예제 03-04 같은 경우에서는 메서드를 매번 실행한다.
+
 ## 3.3 관찰 속성
+
+하나의 데이터를 기반으로 다른 데이터를 변경할 필요가 있을 때 흔히 계산형 속성을 쓰고 있는데, 이 외에도 관찰 속성(Watched Propperty)이라는 것을 사용할 수 있다.
+
+주로 긴 처리 시간이 필요한 비동기 처리에 적합하다는 특징이 있다.
+
+우선 watch 옵션을 이용해 관찰 속성을 등록한다.
 
 ```angular2html
 // 예제 03-05
@@ -124,6 +173,7 @@ var vmSum = new Vue({
 var vm = new Vue({
     el: "#example",
     data: {x:0, y:0, sum:0},
+    // 속성의 이름과 해당 속성이 변경되었을 때 호출할 함수
     watch: {
         x: function(v) {
             console.log("## x 변경");
@@ -149,6 +199,10 @@ var vm = new Vue({
 </script>
 ```
 
+이 경우는 굳이 관찰 속성을 쓸 필요 없이 계산형 속성을 사용하면 되는 경우이다.
+
+예제 03-05를 이용해 스크립트 부분만 변경하면 다음과 같다.
+
 ```angular2html
 // 예제 03-06
 <script type="text/javascript">
@@ -168,6 +222,8 @@ var vm = new Vue({
 })
 </script>
 ```
+
+관찰 속성이 필요한 예제를 살펴보면 다음과 같다.
 
 ```angular2html
 // 예제 03-07 : HTML 기본 틀
@@ -236,7 +292,9 @@ var vm = new Vue({
         isProcessing: false,
         contactlist: []
     },
+    // name 속성의 변화를 감지하여 10행의 함수를 호출
     watch: {
+        // 2자 이상 입력된 경우 fatchContacts 함수 호출
         name: function(val) {
             if (val.length >= 2) {
                 this.fetchContacts();
@@ -246,10 +304,10 @@ var vm = new Vue({
         }
     },
     methods: {
-        fetchContacts: _.debounce(function(){
+        fetchContacts: _.debounce(function(){ // lodash 라이브러리의 _.debounce() 함수를 이용해 일정시간이 지나도록 연속적인 호출이 일어나지 않으면 실제 API를 호출하도록 작성.
             this.contactlist = [];
             this.isProcessing = true;
-            var url = "http://sample.bmaster.kro.kr/contacts_long/search/" +_ this.name;
+            var url = "http://sample.bmaster.kro.kr/contacts_long/search/" + this.name;
             var vm = this;
             fetch(url)
                 .then(function(response) {
@@ -268,7 +326,11 @@ var vm = new Vue({
 </script>
 ```
 
+
+
 ## 3.4 v-cloak 디렉티브
+
+- v-cloak : 콧수염 표현식의 템플릿 문자열이 잠깐 나타났다가 사라지는 경우를 없애는데 사용하는 디렉티브.
 
 ```angular2html
 // 예제 03-10
@@ -285,6 +347,10 @@ var vm = new Vue({
 ```
 
 ## 3.5 Vue 인스턴스 라이프 사이클
+
+Vue 인스턴스는 객체로 생성되고, 데이터에 대한 관찰 기능을 설정하는 등의 작업을 위해 초기화를 수행한다.
+
+그리고 이 과정에서 다양한 라이프 사이클 훅 메서드를 적용할 수 있다.
 
 | 라이프 사이클 훅 | 설명 |
 | ------------- | ------- |
@@ -305,6 +371,7 @@ var vm = new Vue({
 var vmSum = new Vue({
     el: "#example",
     data: {num: 0},
+    // created 이벤트 발생 후 데이터가 변경될 때마다 updated 훅이 실행됨.
     created: function() {
         console.log("Created!!");
     },
@@ -323,4 +390,10 @@ var vmSum = new Vue({
 </script>
 ```
 
+## 정리
 
+일반적인 경우라면 watch 옵션을 사용하는 관찰 속성보다는 계산형 속성이 더 편리하다.
+
+하지만 긴 작업 시간이 필요한 비동기 처리가 요구되는 경우에는 관찰 속성을 사용해야 한다.
+
+method 옵션은 Vue 인스턴스에 메서드를 정의할 수 있는 기능이다. 등록된 메서드는 콧수염 표현식의 템플릿 문자열로도 사용할 수 있으며, 다음 장에 살펴볼 이벤트에서도 사용이 가능하다.
